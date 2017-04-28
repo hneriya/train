@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>train.firebase</title>
+    <style type="text/css">
+    #tableBody {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    #titleOfTrainSubmission {
+        text-align: center;
+        font-size: 30px;
+        font-weight: bolder;
+    }
+    
+    .distinguishCategoryName {
+        font-size: 24px;
+        text-decoration: underline;
+        font-weight: bold;
+    }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- header -->
+    <div class="jumbotron"></div>
+    <div class="container">
+        <!--     container with the 6 characteristics. info entered will be published here. -->
+        <form class="well form-horizontal" action=" " method="post" id="addTrainImputForm">
+            <fieldset>
+                <div class="form-group">
+                    <div class="row">
+                        <table class="col-md-12" id="tableBody">
+                            <td class="distinguishCategoryName active col-md-2">Train Name</td>
+                            <td class="distinguishCategoryName active col-md-2">Destination</td>
+                            <td class="distinguishCategoryName active col-md-2">Frequency (min)</td>
+                            <td class="distinguishCategoryName active col-md-2">Next Arrival</td>
+                            <td class="distinguishCategoryName active col-md-2">Minutes Away</td>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <!--add train imput info -->
+    <div class="container">
+        <form class="well form-horizontal" action=" " method="post" id="addTrainImputForm">
+            <fieldset>
+                <legend id="titleOfTrainSubmission">Add Train</legend>
+                <!-- Text input-->
+                <div class="form-group">
+                    <!-- all text inside of class ="form-group", inside of <div class="col-md-4 inputGroupContainer"> 
+                     and entered in class="form-control" -->
+                    <label for="trainNameImput" class="col-md-4 control-label">Train Name</label>
+                    <div class="col-md-4 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-road"></i></span>
+                            <!-- imput train name, search bar housed in class="form-control" -->
+                            <input name="trainNameImput" id="trainNameImput" placeholder="" class="form-control" type="text">
+                        </div>
+                    </div>
+                </div>
+                <!-- Text input-->
+                <div class="form-group">
+                    <label for="destinationImput" class="col-md-4 control-label">Destination</label>
+                    <div class="col-md-4 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-tags"></i></span>
+                            <!-- imput destination name search bar housed in class="form-control" -->
+                            <input name="destinationImput" id="destinationImput" placeholder="" class="form-control" type="text">
+                        </div>
+                    </div>
+                </div>
+                <!-- Text input-->
+                <div class="form-group">
+                    <label for="firstTrainTimeImput" class="col-md-4 control-label">First Train Time(HH:mm- military time)</label>
+                    <div class="col-md-4 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                            <!-- imput first train time search bar housed in class="form-control" -->
+                            <input name="firstTrainTimeImput" id="firstTrainTimeImput" placeholder="" class="form-control" type="text">
+                        </div>
+                    </div>
+                </div>
+                <!-- Text input-->
+                <div class="form-group">
+                    <label for="frequencyImput" class="col-md-4 control-label">Frequency(min)</label>
+                    <div class="col-md-4 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-repeat"></i></span>
+                            <!-- imput train frequency search bar housed in class="form-control" -->
+                            <input name="frequencyImput" id="frequencyImput" placeholder="" class="form-control" type="text">
+                        </div>
+                    </div>
+                </div>
+                <!-- Button -->
+                <div class="form-group">
+                    <label class="col-md-4 control-label"></label>
+                    <div class="col-md-4">
+                        <button class="btn btn-warning" id="submitButton" type="submit">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+    <script src="moment.min.js"></script>
+    <script type="text/javascript">
+
+    // Initialize Firebase with my key
+    var config = {
+        apiKey: "AIzaSyBCgC5CxYGLlEbgMDlKn4CYLMzelUKU3tM",
+        authDomain: "progressionwithouttimeattempts.firebaseapp.com",
+        databaseURL: "https://progressionwithouttimeattempts.firebaseio.com",
+        projectId: "progressionwithouttimeattempts",
+        storageBucket: "progressionwithouttimeattempts.appspot.com",
+        messagingSenderId: "973073725712"
+    };
+
+    firebase.initializeApp(config);
+    //all the variables declared here and used/defined below
+    var database = firebase.database();
+    var nameOfTrain = "";
+    var nameOfDestination = "";
+    var nameFrequency;
+    var nameFirstRoute;
+    var nameNextTrain;
+    var nameMinutesAway;
+    var tMinutesTillTrain;
+
+    //when submit button pressed, the following happens:
+    $('#submitButton').on("click", function() {
+        event.preventDefault();
+
+        //grab user imputs
+        nameOfTrain = $('#trainNameImput').val().trim();
+        nameOfDestination = $('#destinationImput').val().trim();
+        nameFirstRoute = $('#firstTrainTimeImput').val().trim();
+        nameFrequency = $('#frequencyImput').val().trim();
+
+        //grab all the info/variables and make time outputs possible
+        var nameFirstRouteConverted = moment(nameFirstRoute, "hh:mm").subtract(1, "years");
+        var currentTime = moment();
+        console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+        var diffTime = moment().diff(moment(nameFirstRouteConverted), "minutes");
+        console.log("DIFFERENCE IN TIME: " + diffTime);
+
+        var tRemainder = diffTime % nameFrequency;
+        console.log(tRemainder);
+
+        var tMinutesTillTrain = nameFrequency - tRemainder;
+        console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+        var nameNextTrain = moment().add(tMinutesTillTrain, "minutes");
+        nameNextTrain = moment(nameNextTrain).format("hh:mm A");
+        console.log("ARRIVAL TIME: " + moment(nameNextTrain).format("hh:mm"));
+
+        //link to firebase, the 'g' is the name of the categories displayed in 
+        //firebase and the right side are all defined above
+        database.ref().push({
+            gName: nameOfTrain,
+            gDestination: nameOfDestination,
+            gFrequency: nameFrequency,
+            gFirstRoute: nameFirstRoute,
+            gNextTrain: nameNextTrain,
+            gtMinutesTillTrain: tMinutesTillTrain
+
+        });
+    })
+
+
+    database.ref().on("child_added", function(childSnapshot) {
+        console.log(childSnapshot.val());
+
+        //what actually displays the information in the table on the top of the page
+        rowOfData = $("<tr><td class='active col-md-2' id='nameDisplay'>" + childSnapshot.val().gName + "</td><td class='active col-md-2' id='destinationDisplay'>" + childSnapshot.val().gDestination + "</td><td class='active col-md-2' id='frequencyDisplay'>" + childSnapshot.val().gFrequency + "</td><td class='active col-md-2' id='nextTrainDisplay'>" + childSnapshot.val().gNextTrain + "</td><td class='active col-md-2' id='minutesAwayDisplay'>" + childSnapshot.val().gtMinutesTillTrain + "</td></tr>");
+
+        //append the data to the table itself
+        $("#tableBody").append(rowOfData);
+
+    });
+    </script>
+</body>
+
+</html>
